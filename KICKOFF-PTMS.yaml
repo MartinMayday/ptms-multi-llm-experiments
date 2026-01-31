@@ -1,0 +1,523 @@
+---
+orchestration:
+  project_name: "Project Task Management System"
+  project_version: "1.0.0"
+  description: "Agentic Workflow Management System - File-system-based project management for orchestrating AI agents with human oversight via Kanban interface"
+  
+  # Paths (relative to project root)
+  plans_dir: ".planning/project-task-management-system"
+  output_dir: "."
+  workspace_dir: "workspace"
+  
+  # Execution Configuration
+  max_concurrent_agents: 10
+  execution_mode: "hybrid"
+  default_agent_timeout_minutes: 45
+  retry_failed_tasks: true
+  max_retries_per_task: 2
+  
+  # Quality Gates
+  quality_gates:
+    test_coverage_threshold: 90
+    require_typecheck: true
+    require_lint: true
+    performance_benchmarks: true
+
+plans:
+  plan_01:
+    id: "01"
+    name: "Foundation & Architecture"
+    status: "ready"
+    priority: 1
+    dependencies: []
+    total_phases: 7
+    estimated_effort: "5-7 days"
+    plan_file: "phase-01-foundation/01-01-PLAN.md"
+    
+  plan_02:
+    id: "02"
+    name: "Workflow Engine"
+    status: "ready"
+    priority: 2
+    dependencies: ["01"]
+    total_phases: 7
+    estimated_effort: "5-7 days"
+    plan_file: "phase-02-workflow-engine/README.md"
+    
+  plan_03:
+    id: "03"
+    name: "Backend API"
+    status: "ready"
+    priority: 3
+    dependencies: ["01", "02"]
+    total_phases: 6
+    estimated_effort: "4-6 days"
+    plan_file: "phase-03-backend-api/README.md"
+    
+  plan_04:
+    id: "04"
+    name: "Web Interface"
+    status: "ready"
+    priority: 4
+    dependencies: ["03"]
+    total_phases: 6
+    estimated_effort: "4-6 days"
+    plan_file: "phase-04-web-interface/README.md"
+    
+  plan_05:
+    id: "05"
+    name: "Agent Interface"
+    status: "ready"
+    priority: 4
+    dependencies: ["03"]
+    total_phases: 6
+    estimated_effort: "3-5 days"
+    plan_file: "phase-05-agent-interface/README.md"
+
+phases:
+  # Plan 01 Phases
+  phase_01_01:
+    id: "01-01"
+    name: "System Architecture Design"
+    plan: "01"
+    agent: "Architect"
+    status: "ready"
+    dependencies: []
+    spec_file: "phase-01-foundation/01-system-architecture-design.md"
+    
+  phase_01_02:
+    id: "01-02"
+    name: "File System Structure Setup"
+    plan: "01"
+    agent: "Backend-Core"
+    status: "ready"
+    dependencies: ["01-01"]
+    spec_file: "phase-01-foundation/02-file-system-structure-setup.md"
+    
+  phase_01_03:
+    id: "01-03"
+    name: "Data Model & Types Definition"
+    plan: "01"
+    agent: "Backend-Types"
+    status: "ready"
+    dependencies: ["01-01", "01-02"]
+    spec_file: "phase-01-foundation/03-data-model-types-definition.md"
+    
+  phase_01_04:
+    id: "01-04"
+    name: "State Machine Definition"
+    plan: "01"
+    agent: "Backend-Engine"
+    status: "ready"
+    dependencies: ["01-03"]
+    spec_file: "phase-01-foundation/04-state-machine-definition.md"
+    
+  phase_01_05:
+    id: "01-05"
+    name: "Concurrency & Security Design"
+    plan: "01"
+    agent: "Backend-Concurrency"
+    status: "ready"
+    dependencies: ["01-02", "01-03"]
+    spec_file: "phase-01-foundation/05-concurrency-security-design.md"
+    
+  phase_01_06:
+    id: "01-06"
+    name: "File Watching Infrastructure"
+    plan: "01"
+    agent: "Backend-Core"
+    status: "ready"
+    dependencies: ["01-02", "01-05"]
+    spec_file: "phase-01-foundation/06-file-watching-infrastructure.md"
+    
+  phase_01_07:
+    id: "01-07"
+    name: "Core Interfaces & Integration Tests"
+    plan: "01"
+    agent: "QA-Engineer"
+    status: "ready"
+    dependencies: ["01-01", "01-02", "01-03", "01-04", "01-05", "01-06"]
+    spec_file: "phase-01-foundation/07-core-interfaces-integration-tests.md"
+
+  # Plan 02 Phases
+  phase_02_01:
+    id: "02-01"
+    name: "Task Executor"
+    plan: "02"
+    agent: "Backend-Engine"
+    status: "ready"
+    dependencies: ["01"]
+    
+  phase_02_02:
+    id: "02-02"
+    name: "Dependency Resolver"
+    plan: "02"
+    agent: "Backend-Engine"
+    status: "ready"
+    dependencies: ["02-01"]
+    
+  phase_02_03:
+    id: "02-03"
+    name: "Retry Handler"
+    plan: "02"
+    agent: "Backend-Engine"
+    status: "ready"
+    dependencies: ["02-01"]
+    
+  phase_02_04:
+    id: "02-04"
+    name: "Checkpoint Handler"
+    plan: "02"
+    agent: "Backend-Engine"
+    status: "ready"
+    dependencies: ["02-01", "02-03"]
+    
+  phase_02_05:
+    id: "02-05"
+    name: "Notification Manager"
+    plan: "02"
+    agent: "Backend-API"
+    status: "ready"
+    dependencies: ["02-01"]
+    
+  phase_02_06:
+    id: "02-06"
+    name: "Error Recovery"
+    plan: "02"
+    agent: "Backend-Engine"
+    status: "ready"
+    dependencies: ["02-03", "02-04"]
+    
+  phase_02_07:
+    id: "02-07"
+    name: "Workflow Integration Tests"
+    plan: "02"
+    agent: "QA-Engineer"
+    status: "ready"
+    dependencies: ["02-01", "02-02", "02-03", "02-04", "02-05", "02-06"]
+
+  # Plan 03 Phases
+  phase_03_01:
+    id: "03-01"
+    name: "API Design & Framework Setup"
+    plan: "03"
+    agent: "Backend-API"
+    status: "ready"
+    dependencies: ["02"]
+    
+  phase_03_02:
+    id: "03-02"
+    name: "Project Endpoints"
+    plan: "03"
+    agent: "Backend-API"
+    status: "ready"
+    dependencies: ["03-01"]
+    
+  phase_03_03:
+    id: "03-03"
+    name: "Card Endpoints"
+    plan: "03"
+    agent: "Backend-API"
+    status: "ready"
+    dependencies: ["03-01", "03-02"]
+    
+  phase_03_04:
+    id: "03-04"
+    name: "WebSocket Implementation"
+    plan: "03"
+    agent: "Backend-API"
+    status: "ready"
+    dependencies: ["03-01", "03-03"]
+    
+  phase_03_05:
+    id: "03-05"
+    name: "Agent Protocol"
+    plan: "03"
+    agent: "Backend-API"
+    status: "ready"
+    dependencies: ["03-01", "03-04"]
+    
+  phase_03_06:
+    id: "03-06"
+    name: "API Documentation"
+    plan: "03"
+    agent: "Technical-Writer"
+    status: "ready"
+    dependencies: ["03-01", "03-02", "03-03", "03-04", "03-05"]
+
+  # Plan 04 Phases
+  phase_04_01:
+    id: "04-01"
+    name: "Project Setup"
+    plan: "04"
+    agent: "Frontend-UI"
+    status: "ready"
+    dependencies: ["03"]
+    
+  phase_04_02:
+    id: "04-02"
+    name: "Kanban Board Layout"
+    plan: "04"
+    agent: "Frontend-UI"
+    status: "ready"
+    dependencies: ["04-01"]
+    
+  phase_04_03:
+    id: "04-03"
+    name: "Card Management"
+    plan: "04"
+    agent: "Frontend-UI"
+    status: "ready"
+    dependencies: ["04-01", "04-02"]
+    
+  phase_04_04:
+    id: "04-04"
+    name: "Real-time Updates"
+    plan: "04"
+    agent: "Frontend-State"
+    status: "ready"
+    dependencies: ["04-01", "04-03"]
+    
+  phase_04_05:
+    id: "04-05"
+    name: "Agent Status Panel"
+    plan: "04"
+    agent: "Frontend-UI"
+    status: "ready"
+    dependencies: ["04-01", "04-04"]
+    
+  phase_04_06:
+    id: "04-06"
+    name: "Responsive Design"
+    plan: "04"
+    agent: "Frontend-UI"
+    status: "ready"
+    dependencies: ["04-01", "04-02", "04-03", "04-04", "04-05"]
+
+  # Plan 05 Phases
+  phase_05_01:
+    id: "05-01"
+    name: "Agent CLI Framework"
+    plan: "05"
+    agent: "Agent-Developer"
+    status: "ready"
+    dependencies: ["03"]
+    
+  phase_05_02:
+    id: "05-02"
+    name: "Task Polling & Claiming"
+    plan: "05"
+    agent: "Agent-Developer"
+    status: "ready"
+    dependencies: ["05-01"]
+    
+  phase_05_03:
+    id: "05-03"
+    name: "Progress Reporting"
+    plan: "05"
+    agent: "Agent-Developer"
+    status: "ready"
+    dependencies: ["05-01", "05-02"]
+    
+  phase_05_04:
+    id: "05-04"
+    name: "Output Generation"
+    plan: "05"
+    agent: "Agent-Developer"
+    status: "ready"
+    dependencies: ["05-01", "05-03"]
+    
+  phase_05_05:
+    id: "05-05"
+    name: "Error Handling"
+    plan: "05"
+    agent: "Agent-Developer"
+    status: "ready"
+    dependencies: ["05-01", "05-03", "05-04"]
+    
+  phase_05_06:
+    id: "05-06"
+    name: "Agent Documentation"
+    plan: "05"
+    agent: "Technical-Writer"
+    status: "ready"
+    dependencies: ["05-01", "05-02", "05-03", "05-04", "05-05"]
+
+agent_mappings:
+  Architect:
+    description: "System design and architecture decisions"
+    expertise: ["Component boundaries", "Interfaces", "Design patterns"]
+    max_concurrent: 1
+    context_budget: "200K"
+    
+  Backend-Types:
+    description: "Type system design and implementation"
+    expertise: ["TypeScript", "Zod", "Runtime validation"]
+    max_concurrent: 2
+    context_budget: "200K"
+    
+  Backend-Core:
+    description: "Core infrastructure implementation"
+    expertise: ["File system", "Atomic operations", "Workspace management"]
+    max_concurrent: 2
+    context_budget: "200K"
+    
+  Backend-Engine:
+    description: "Workflow engine and state machine"
+    expertise: ["State machines", "Task execution", "Business logic"]
+    max_concurrent: 2
+    context_budget: "200K"
+    
+  Backend-Concurrency:
+    description: "Concurrency control and locking"
+    expertise: ["Locking", "CAS", "Rate limiting", "Thread safety"]
+    max_concurrent: 1
+    context_budget: "200K"
+    
+  Backend-API:
+    description: "REST API and WebSocket implementation"
+    expertise: ["Hono", "REST design", "WebSocket", "OpenAPI"]
+    max_concurrent: 2
+    context_budget: "200K"
+    
+  Frontend-UI:
+    description: "Vue.js UI components and interfaces"
+    expertise: ["Vue 3", "Tailwind", "shadcn/ui", "Accessibility"]
+    max_concurrent: 3
+    context_budget: "200K"
+    
+  Frontend-State:
+    description: "State management and real-time updates"
+    expertise: ["Pinia", "WebSocket client", "Reactivity"]
+    max_concurrent: 2
+    context_budget: "200K"
+    
+  Agent-Developer:
+    description: "CLI tools and agent protocol"
+    expertise: ["CLI design", "Argument parsing", "Agent workflows"]
+    max_concurrent: 2
+    context_budget: "200K"
+    
+  QA-Engineer:
+    description: "Testing and quality assurance"
+    expertise: ["Test design", "Coverage", "Benchmarking"]
+    max_concurrent: 2
+    context_budget: "200K"
+    
+  Technical-Writer:
+    description: "Documentation and examples"
+    expertise: ["Technical writing", "API docs", "READMEs"]
+    max_concurrent: 1
+    context_budget: "200K"
+    
+  Code-Reviewer:
+    description: "Code review and quality validation"
+    expertise: ["Code review", "Best practices", "Anti-patterns"]
+    max_concurrent: 2
+    context_budget: "200K"
+    
+  DevOps-Engineer:
+    description: "Infrastructure and deployment"
+    expertise: ["CI/CD", "Docker", "Deployment scripts"]
+    max_concurrent: 1
+    context_budget: "200K"
+
+special_instructions:
+  parallelization_strategy:
+    - "Plan 01 phases execute sequentially (strong dependencies)"
+    - "Plans 04 and 05 can execute in parallel after Plan 03 (independent)"
+    - "Within each plan, parallelize phases where dependencies allow"
+    - "Max 10 concurrent agents across all phases"
+    
+  quality_gates_mandatory:
+    - "All specified files created and non-empty"
+    - "TypeScript compilation succeeds (tsc --noEmit)"
+    - "Tests pass (bun test)"
+    - "Test coverage > 90%"
+    - "Success criteria met per phase spec"
+    
+  context_freshness:
+    - "Every task spawns in fresh context via Task tool"
+    - "Never chain multiple tasks in same context"
+    - "Each agent gets complete, self-contained context package"
+    
+  error_handling:
+    - "Failed tasks get 2 automatic retries with error context"
+    - "After 2 failures: spawn Code-Reviewer for analysis"
+    - "Critical failures pause execution pending user decision"
+    
+  state_management:
+    - "Maintain orchestrator state in .orchestrator/state.json"
+    - "Track plan/phase status"
+    - "Log agent assignments and results"
+    - "Record completion timestamps"
+    - "Store quality gate results"
+    
+  communication:
+    - "Report progress at each plan boundary"
+    - "Show active agents count (X/10)"
+    - "Highlight blocked tasks and dependencies"
+    - "Present options when decisions needed"
+
+success_criteria:
+  file_system: "All state in files, atomic writes never corrupt data"
+  state_machine: "Valid transitions only, side effects trigger correctly"
+  concurrency: "No race conditions, locks resolve within 5s"
+  observability: "Humans can view and intervene via Kanban UI"
+  agent_native: "Agents can claim/execute/report tasks programmatically"
+  resilience: "Failures recover or escalate, system graceful degrades"
+  performance:
+    file_read_ms: 10
+    state_transition_ms: 50
+    websocket_latency_ms: 50
+    api_response_ms: 200
+  testing:
+    coverage_percent: 90
+    all_tests_pass: true
+  documentation: "Complete API docs, agent protocol spec"
+
+technology_stack:
+  backend:
+    runtime: "Bun (3x faster than Node.js)"
+    language: "TypeScript 5.x"
+    api_framework: "Hono (lightweight, fast)"
+    file_watching: "chokidar (cross-platform)"
+    validation: "Zod"
+    locking: "POSIX flock()"
+    
+  frontend:
+    framework: "Vue 3 (Composition API)"
+    build: "Vite"
+    styling: "Tailwind CSS + shadcn/ui"
+    state: "Pinia"
+    realtime: "Native WebSocket"
+    
+  development:
+    testing: "bun:test (built-in)"
+    type_checking: "tsc --noEmit"
+    linting: "ESLint + Prettier"
+
+estimated_effort:
+  sequential_days: "21-31"
+  parallel_04_05_days: "18-26"
+  full_parallel_days: "15-22"
+
+file_structure:
+  - ".orchestrator/state.json"
+  - ".orchestrator/progress.md"
+  - ".orchestrator/logs/"
+  - "src/core/FileSystem.ts"
+  - "src/core/types/"
+  - "src/engine/StateMachine.ts"
+  - "src/engine/TaskExecutor.ts"
+  - "src/api/server.ts"
+  - "src/ui/components/"
+  - "src/agent/cli.ts"
+  - "tests/unit/"
+  - "tests/integration/"
+  - "workspace/inbox/"
+  - "workspace/backlog/"
+  - "workspace/active/"
+  - "workspace/review/"
+  - "workspace/completed/"
+  - "workspace/failed/"
