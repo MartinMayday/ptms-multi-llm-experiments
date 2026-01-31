@@ -2,13 +2,14 @@
 
 **Parallel Implementation of Project Task Management System using Multiple LLM Providers**
 
-This repository contains parallel implementations of the Project Task Management System by three different LLM providers, allowing comparison and hybrid solution assembly.
+This repository contains parallel implementations of the Project Task Management System by four different LLM providers, allowing comparison and hybrid solution assembly.
 
 ---
 
 ## Quick Links
 
 - **[Repository](https://github.com/MartinMayday/ptms-multi-llm-experiments)** - GitHub repo
+- **[SPECIALIST-ORCHESTRATOR-CONFIG.md](SPECIALIST-ORCHESTRATOR-CONFIG.md)** - Specialist-agent orchestration config
 - **[MULTI-LLM-WORKFLOW.md](MULTI-LLM-WORKFLOW.md)** - Complete workflow documentation
 - **[SUMMARY.md](SUMMARY.md)** - Project specification and overview
 - **[INDEX.md](INDEX.md)** - Project navigation and plan index
@@ -19,16 +20,17 @@ This repository contains parallel implementations of the Project Task Management
 
 Compare how different LLMs approach the same complex software engineering task:
 - **Claude** (Anthropic) - Strong typing, architecture patterns
-- **GPT** (OpenAI) - Creative solutions, documentation
+- **GLM** (Zhipu AI) - Chinese optimization, efficient generation
+- **Kimi** (Moonshot AI) - Long context, deep analysis
 - **Gemini** (Google) - Fast iteration, comprehensive testing
 
 Then merge the best components into a hybrid solution on `main`.
 
 ---
 
-## Architecture: Git Worktrees
+## Architecture: Git Worktrees with Specialist Agents
 
-Each LLM works in an **isolated working directory** (worktree) linked to its own branch:
+Each LLM works in an **isolated working directory** (worktree) with its own orchestrator that spawns **specialist agents**:
 
 ```
                     GitHub Repository
@@ -38,7 +40,7 @@ Each LLM works in an **isolated working directory** (worktree) linked to its own
         │           │           │
     ┌───┴───┐   ┌───┴───┐   ┌───┴───┐
     │ main  │   │variant│   │variant│
-    │(specs │   │-claude│   │-gpt   │
+    │(specs │   │-claude│   │-glm   │
     │/ref)  │   │       │   │       │
     └───┬───┘   └───┬───┘   └───┬───┘
         │           │           │
@@ -48,13 +50,29 @@ Each LLM works in an **isolated working directory** (worktree) linked to its own
 │            │            │            │
 │ptms-     │ptms-      │ptms-      │ptms-
 │experiments│experiments│experiments│experiments
-│(main)     │-claude    │-gpt       │-gemini
+│(main)     │-claude    │-glm       │-gemini
 │            │            │            │
-│ Planning   │ Claude     │ GPT        │ Gemini
+│ Planning   │ Claude     │ GLM        │ Gemini
 │ Files      │ Code       │ Code       │ Code
 │            │            │            │
 └────────────┴────────────┴────────────┴──────┘
+
+WITHIN EACH WORKTREE:
+┌─────────────────────────────────────────┐
+│ Orchestrator Agent                      │
+│  ├─ Backend-Types Specialist            │
+│  ├─ Backend-Core Specialist             │
+│  ├─ Backend-Engine Specialist           │
+│  ├─ Backend-API Specialist              │
+│  ├─ Frontend-UI Specialist              │
+│  ├─ QA-Engineer Specialist              │
+│  └─ Up to 10 concurrent specialists     │
+└─────────────────────────────────────────┘
 ```
+
+**Key Point:** 1 orchestrator per worktree → spawns specialist agents (NOT generic agents doing entire plans)
+
+See [SPECIALIST-ORCHESTRATOR-CONFIG.md](SPECIALIST-ORCHESTRATOR-CONFIG.md) for detailed configuration.
 
 ---
 
@@ -63,9 +81,10 @@ Each LLM works in an **isolated working directory** (worktree) linked to its own
 | Directory | Branch | LLM Provider | Status | Purpose |
 |-----------|--------|--------------|--------|---------|
 | `ptms-experiments/` | `main` | Reference | ✅ Stable | Planning files, specs, integration |
-| `ptms-experiments-claude/` | `variant-claude` | **Claude** | 🔄 Ready | Claude-optimized implementation |
-| `ptms-experiments-gpt/` | `variant-gpt` | **GPT** | 🔄 Ready | GPT-optimized implementation |
-| `ptms-experiments-gemini/` | `variant-gemini` | **Gemini** | 🔄 Ready | Gemini-optimized implementation |
+| `ptms-experiments-claude/` | `variant-claude` | **Claude** (Anthropic) | 🔄 Ready | Claude orchestrator + specialists |
+| `ptms-experiments-glm/` | `variant-glm` | **GLM** (Zhipu AI) | 🔄 Ready | GLM orchestrator + specialists |
+| `ptms-experiments-kimi/` | `variant-kimi` | **Kimi** (Moonshot AI) | 🔄 Ready | Kimi orchestrator + specialists |
+| `ptms-experiments-gemini/` | `variant-gemini` | **Gemini** (Google) | 🔄 Ready | Gemini orchestrator + specialists |
 
 **Base Location:** `/Users/nosrcadmin/aos/`
 
@@ -79,118 +98,52 @@ cd /Users/nosrcadmin/aos/ptms-experiments
 git worktree list
 ```
 
-### 2. Switch to Variant
+### 2. Start Orchestrator in Worktree
 ```bash
-# Work in Claude variant
+# Claude worktree - spawns specialist agents
 cd /Users/nosrcadmin/aos/ptms-experiments-claude
 
-# Work in GPT variant
-cd /Users/nosrcadmin/aos/ptms-experiments-gpt
+# GLM worktree - spawns specialist agents
+cd /Users/nosrcadmin/aos/ptms-experiments-glm
 
-# Work in Gemini variant
+# Kimi worktree - spawns specialist agents  
+cd /Users/nosrcadmin/aos/ptms-experiments-kimi
+
+# Gemini worktree - spawns specialist agents
 cd /Users/nosrcadmin/aos/ptms-experiments-gemini
-
-# Back to main (reference/specs)
-cd /Users/nosrcadmin/aos/ptms-experiments
 ```
 
-### 3. Check Status Across All
-```bash
-for dir in ptms-experiments ptms-experiments-claude ptms-experiments-gpt ptms-experiments-gemini; do
-  echo "=== $dir ==="
-  cd /Users/nosrcadmin/aos/$dir && git status --short
-done
-```
+Each orchestrator will:
+1. Parse plan specifications
+2. Break into atomic tasks
+3. Spawn specialist agents (Backend-Types, Backend-Core, etc.)
+4. Coordinate up to 10 agents concurrently
+5. Deliver results
 
 ---
 
-## Workflow: From Development to Merge
+## Architecture: Specialist-Agent Multi-Orchestration
 
-### Phase 1: Parallel Development
-Each LLM works independently in their assigned directory:
-
+**CORRECT APPROACH:**
 ```
-Claude Session
-  └─→ cd /Users/nosrcadmin/aos/ptms-experiments-claude
-  └─→ Implements Plan 01 Phase 01-01
-  └─→ git commit -m "01-01: Implement FileSystem [Claude]"
-  └─→ Continues to next phase...
-
-GPT Session  
-  └─→ cd /Users/nosrcadmin/aos/ptms-experiments-gpt
-  └─→ Implements Plan 01 Phase 01-01
-  └─→ git commit -m "01-01: Implement FileSystem [GPT]"
-  └─→ Continues to next phase...
-
-Gemini Session
-  └─→ cd /Users/nosrcadmin/aos/ptms-experiments-gemini
-  └─→ Implements Plan 01 Phase 01-01
-  └─→ git commit -m "01-01: Implement FileSystem [Gemini]"
-  └─→ Continues to next phase...
+Worktree: ptms-experiments-kimi/
+├─ Orchestrator (Kimi)
+│  ├─ Backend-Types Specialist → Type definitions, Zod schemas
+│  ├─ Backend-Core Specialist → File system, atomic operations
+│  ├─ Backend-Engine Specialist → State machines, workflows
+│  ├─ Backend-API Specialist → Hono, REST, WebSocket
+│  ├─ Frontend-UI Specialist → Vue 3, Tailwind, components
+│  ├─ QA-Engineer Specialist → Tests, benchmarks
+│  └─ Up to 10 concurrent specialists
 ```
 
-### Phase 2: Validation & Testing
+**NOT:** 1 orchestrator → 3 generic agents → each does entire plan
 
-Run quality gates on EACH variant:
-
-```bash
-# In each worktree directory
-cd /Users/nosrcadmin/aos/ptms-experiments-<variant>
-
-# Quality Gates
-bun run typecheck    # TypeScript compilation
-cd /Users/nosrcadmin/aos/ptms-experiments-<variant>
-bun test             # Test suite
-cd /Users/nosrcadmin/aos/ptms-experiments-<variant>
-bun test --coverage  # Coverage report (> 90%)
-cd /Users/nosrcadmin/aos/ptms-experiments-<variant>
-bun run lint         # Linting
-cd /Users/nosrcadmin/aos/ptms-experiments-<variant>
-bun run benchmark    # Performance tests
-```
-
-### Phase 3: Comparison
-
-Compare implementations:
-
-```bash
-# View commits unique to each variant
-git log variant-claude ^variant-gpt   # Claude-only commits
-git log variant-gpt ^variant-claude   # GPT-only commits
-
-# Compare specific files
-diff ptms-experiments-claude/src/core/FileSystem.ts \
-    ptms-experiments-gpt/src/core/FileSystem.ts
-```
-
-### Phase 4: Merge Best Components
-
-#### Option A: Pick Winner (Full Merge)
-```bash
-cd /Users/nosrcadmin/aos/ptms-experiments
-git checkout main
-git merge variant-claude --no-ff -m "Merge: Claude wins Plan 01"
-git push origin main
-```
-
-#### Option B: Cherry-Pick Best Parts (Hybrid)
-```bash
-cd /Users/nosrcadmin/aos/ptms-experiments
-git checkout -b integration/plan-01-hybrid
-
-# Claude's FileSystem
-git cherry-pick <claude-fs-commit>
-
-# GPT's StateMachine
-git cherry-pick <gpt-sm-commit>
-
-# Gemini's tests
-git cherry-pick <gemini-test-commit>
-
-# Test combined solution, then merge to main
-git checkout main
-git merge integration/plan-01-hybrid
-```
+See [SPECIALIST-ORCHESTRATOR-CONFIG.md](SPECIALIST-ORCHESTRATOR-CONFIG.md) for:
+- Specialist agent registry (14 types)
+- Task-to-specialist mapping
+- Orchestrator prompt template
+- Quality gates
 
 ---
 
@@ -243,64 +196,79 @@ Legend: ✅ Complete | 🔵 Ready | 🔄 In Progress | ⏳ Pending | ❌ Failed
 
 ---
 
-## Current Status
+## Workflow: LLM Variant Development
 
-### Plan 01: Foundation & Architecture
+### Phase 1: Parallel Development
+Each worktree runs its own orchestrator spawning specialist agents:
 
-| Phase | Name | Claude | GPT | Gemini | Winner |
-|-------|------|--------|-----|--------|--------|
-| 01-01 | System Architecture | 🔄 | 🔄 | 🔄 | - |
-| 01-02 | File System Setup | ⏳ | ⏳ | ⏳ | - |
-| 01-03 | Data Models | ⏳ | ⏳ | ⏳ | - |
-| 01-04 | State Machine | ⏳ | ⏳ | ⏳ | - |
-| 01-05 | Concurrency | ⏳ | ⏳ | ⏳ | - |
-| 01-06 | File Watching | ⏳ | ⏳ | ⏳ | - |
-| 01-07 | Integration Tests | ⏳ | ⏳ | ⏳ | - |
+```
+Claude Worktree
+  └─ Orchestrator spawns:
+     ├─ Backend-Types agent → Type definitions
+     ├─ Backend-Core agent → FileSystem.ts
+     ├─ Backend-Engine agent → StateMachine.ts
+     └─ QA-Engineer agent → Tests
 
-Legend: ✅ Complete | 🔄 In Progress | ⏳ Pending
+GLM Worktree
+  └─ Orchestrator spawns:
+     ├─ Backend-Types agent → Type definitions
+     ├─ Backend-Core agent → FileSystem.ts
+     ├─ Backend-Engine agent → StateMachine.ts
+     └─ QA-Engineer agent → Tests
 
----
+Kimi Worktree
+  └─ Orchestrator spawns:
+     ├─ Backend-Types agent → Type definitions
+     ├─ Backend-Core agent → FileSystem.ts
+     ├─ Backend-Engine agent → StateMachine.ts
+     └─ QA-Engineer agent → Tests
 
-## Git Commands Reference
-
-### Worktree Management
-```bash
-# List all worktrees
-git worktree list
-
-# Add new worktree
-git worktree add <path> <branch>
-
-# Remove worktree
-git worktree remove <path>
-
-# Prune stale worktrees
-git worktree prune
+Gemini Worktree
+  └─ Orchestrator spawns:
+     ├─ Backend-Types agent → Type definitions
+     ├─ Backend-Core agent → FileSystem.ts
+     ├─ Backend-Engine agent → StateMachine.ts
+     └─ QA-Engineer agent → Tests
 ```
 
-### Compare Variants
+### Phase 2: Validation & Testing
+
+Each variant independently runs quality gates:
 ```bash
-# Compare two branches
-git diff variant-claude variant-gpt
-
-# View unique commits
-git log variant-claude ^variant-gpt
-
-# Compare specific file
-git diff variant-claude variant-gpt -- src/core/FileSystem.ts
+cd /Users/nosrcadmin/aos/ptms-experiments-<variant>
+bun run typecheck    # TypeScript compilation
+bun test             # Test suite
+bun test --coverage  # Coverage report (> 90%)
+bun run lint         # Linting
+bun run benchmark    # Performance tests
 ```
 
-### Merge Workflow
+### Phase 3: Comparison & Selection
+
+Compare specialist implementations across variants:
 ```bash
-# Merge full variant
-git checkout main
-git merge variant-claude
+# Compare Backend-Core implementations
+diff ptms-experiments-claude/src/core/FileSystem.ts \
+    ptms-experiments-kimi/src/core/FileSystem.ts
 
-# Cherry-pick specific commit
-git cherry-pick <commit-hash>
+# Compare test coverage
+# Claude: 94%, Kimi: 96%, GLM: 92%, Gemini: 95%
+```
 
-# Create integration branch
-git checkout -b integration/plan-01
+### Phase 4: Merge Best Components
+
+Cherry-pick winning specialist implementations:
+```bash
+cd /Users/nosrcadmin/aos/ptms-experiments
+
+# Kimi's Backend-Core won
+git cherry-pick <kimi-backend-core-commit>
+
+# Claude's Backend-Types won
+git cherry-pick <claude-backend-types-commit>
+
+# Gemini's QA suite won
+git cherry-pick <gemini-qa-commit>
 ```
 
 ---
@@ -309,27 +277,26 @@ git checkout -b integration/plan-01
 
 ### Essential Reading
 
-1. **[MULTI-LLM-WORKFLOW.md](MULTI-LLM-WORKFLOW.md)** - Complete workflow guide
-   - Worktree setup and management
+1. **[SPECIALIST-ORCHESTRATOR-CONFIG.md](SPECIALIST-ORCHESTRATOR-CONFIG.md)** - Complete orchestrator configuration
+   - Specialist agent registry (14 types)
+   - Task-to-specialist mapping
+   - Orchestrator prompt template
+   - Quality gates and constraints
+
+2. **[MULTI-LLM-WORKFLOW.md](MULTI-LLM-WORKFLOW.md)** - Workflow guide
+   - Worktree management
    - Validation procedures
    - Merge strategies
    - Emergency procedures
 
-2. **[SUMMARY.md](SUMMARY.md)** - Project specification
+3. **[SUMMARY.md](SUMMARY.md)** - Project specification
    - 5 plans with 32 phases
    - Technology stack
    - Success criteria
-   - Implementation order
 
-3. **[INDEX.md](INDEX.md)** - Project overview
-   - Quick start guide
+4. **[INDEX.md](INDEX.md)** - Project navigation
+   - Quick start
    - Plan directory structure
-   - Phase specifications
-
-4. **[ORCHESTRATOR-AGENT-PROMPT.md](ORCHESTRATOR-AGENT-PROMPT.md)** - Orchestrator system prompt
-   - Multi-agent orchestration
-   - Task spawning
-   - Quality gates
 
 ### Phase Specifications
 
@@ -338,58 +305,6 @@ git checkout -b integration/plan-01
 - **phase-03-backend-api/** - Backend API specification
 - **phase-04-web-interface/** - Web interface specification
 - **phase-05-agent-interface/** - Agent protocol specification
-
----
-
-## LLM-Specific Guidelines
-
-### Claude Variant (ptms-experiments-claude)
-
-**Strengths:** Type safety, architecture patterns, error handling
-
-**Focus:**
-- Strict TypeScript typing (no `any`)
-- Result<T,E> error types
-- Atomic operations
-- Clean architecture
-
-**Entry:**
-```bash
-cd /Users/nosrcadmin/aos/ptms-experiments-claude
-start-orchestrate-execution .planning/KICKOFF-PTMS.yaml
-```
-
-### GPT Variant (ptms-experiments-gpt)
-
-**Strengths:** Creative solutions, documentation, innovation
-
-**Focus:**
-- Novel implementation patterns
-- Performance optimizations
-- Edge case handling
-- Comprehensive docs
-
-**Entry:**
-```bash
-cd /Users/nosrcadmin/aos/ptms-experiments-gpt
-# Use GPT-4 with full system prompt
-```
-
-### Gemini Variant (ptms-experiments-gemini)
-
-**Strengths:** Fast iteration, testing, large context
-
-**Focus:**
-- High test coverage
-- Documentation completeness
-- Integration scenarios
-- Benchmark performance
-
-**Entry:**
-```bash
-cd /Users/nosrcadmin/aos/ptms-experiments-gemini
-# Use Gemini Pro/Ultra
-```
 
 ---
 
@@ -411,30 +326,25 @@ The system is successful when:
 
 ## Support & Troubleshooting
 
-### Common Issues
-
-**Worktree not showing:**
+### Worktree Issues
 ```bash
-git worktree prune  # Clean up stale entries
-git worktree list   # Verify
-```
+# List all worktrees
+git worktree list
 
-**Merge conflicts:**
-```bash
-git merge --abort   # Start over
-# Or resolve manually and commit
-```
+# Clean up stale worktrees
+git worktree prune
 
-**Uncommitted work lost:**
-```bash
-git reflog          # Find lost commits
-git cherry-pick <hash>  # Recover
+# Check worktree status
+for dir in ptms-experiments ptms-experiments-claude ptms-experiments-glm ptms-experiments-kimi ptms-experiments-gemini; do
+  echo "=== $dir ==="
+  cd /Users/nosrcadmin/aos/$dir && git status --short
+done
 ```
 
 ### Full Documentation
 
 - **Setup Issues:** MULTI-LLM-WORKFLOW.md Section 6 (Emergency Procedures)
-- **Git Commands:** MULTI-LLM-WORKFLOW.md Section 4 (Commands Reference)
+- **Orchestrator Config:** SPECIALIST-ORCHESTRATOR-CONFIG.md
 - **Validation:** MULTI-LLM-WORKFLOW.md Section 3 (Testing Workflow)
 - **Merge Strategy:** MULTI-LLM-WORKFLOW.md Section 3 (Phase 5: Merge)
 
@@ -444,22 +354,27 @@ git cherry-pick <hash>  # Recover
 
 - **URL:** https://github.com/MartinMayday/ptms-multi-llm-experiments
 - **Created:** 2026-01-31
-- **Status:** Ready for parallel development
-- **Branches:** main, variant-claude, variant-gpt, variant-gemini
-- **Worktrees:** 4 isolated working directories
+- **Status:** Ready for parallel specialist-agent development
+- **Worktrees:** 5 (main + 4 LLM variants)
+- **Branches:** main, variant-claude, variant-glm, variant-kimi, variant-gemini
 
 ---
 
 ## Next Steps
 
-1. ✅ **Repository Created** - GitHub repo with worktrees
-2. ✅ **Documentation Complete** - Workflow guide created
-3. 🔄 **Start LLM Sessions:**
-   - Open Claude → `cd ptms-experiments-claude`
-   - Open GPT → `cd ptms-experiments-gpt`
-   - Open Gemini → `cd ptms-experiments-gemini`
-4. 🔄 **Execute Plan 01 Phase 01** in all variants
-5. 🔄 **Validate** each variant independently
-6. 🔄 **Compare** and merge best components
+1. ✅ **Repository Created** - GitHub repo with 5 worktrees
+2. ✅ **Specialist Config** - Orchestrator spawns domain specialists
+3. 🔄 **Start Orchestrators:**
+   - Claude → `cd ptms-experiments-claude`
+   - GLM → `cd ptms-experiments-glm`
+   - Kimi → `cd ptms-experiments-kimi`
+   - Gemini → `cd ptms-experiments-gemini`
+4. 🔄 **Execute Plan 01** - All orchestrators spawn specialists for Phase 01
+5. 🔄 **Validate** - Each variant independently tested
+6. 🔄 **Compare & Merge** - Best specialist implementations cherry-picked
 
-**Ready to orchestrate parallel LLM development! 🚀**
+**Ready for parallel specialist-agent orchestration! 🚀**
+
+---
+
+**Key Principle:** Each worktree has 1 orchestrator that spawns specialist agents (Backend-Types, Backend-Core, etc.), NOT generic agents doing entire plans. This maximizes quality through domain expertise.
